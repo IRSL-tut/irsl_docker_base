@@ -14,8 +14,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        #ubuntu: [18.04, 20.04]
-        ubuntu: [ 18.04, 20.04 ]
+        ubuntu: [18.04, 20.04, 22.04]
+        #ubuntu: [ 18.04, 20.04 ]
     runs-on: self-hosted
     env:
       IMAGE_NAME: irsl_base
@@ -26,7 +26,7 @@ jobs:
       - name: Check Version
         run: |
           if   [ ${{ matrix.ubuntu }} == 22.04 ]; then
-            echo "ROS_DISTRO=noetic" >> $GITHUB_ENV
+            echo "ROS_DISTRO=humble" >> $GITHUB_ENV
           elif [ ${{ matrix.ubuntu }} == 20.04 ]; then
             echo "ROS_DISTRO=noetic" >> $GITHUB_ENV
           elif [ ${{ matrix.ubuntu }} == 18.04 ]; then
