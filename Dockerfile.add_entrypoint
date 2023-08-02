@@ -28,6 +28,9 @@ fi\n\
 if [ "${DOCKER_ROS_MASTER_URI}" != "" ]; then\n\
     export ROS_MASTER_URI=${DOCKER_ROS_MASTER_URI}\n\
 fi\n\
+if [ -n "${_EXTRA_PATH}" ]; then\n\
+    export PATH=$PATH:${_EXTRA_PATH}\n\
+fi\n\
 export HOME=/ros_home\n\
 export ROS_HOME=/ros_home\n' >>  /irsl_entryrc
 
