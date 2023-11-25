@@ -14,7 +14,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 RUN echo 'Asia/Tokyo' > /etc/timezone && \
     ln -sf /usr/share/zoneinfo/Asia/Tokyo /etc/localtime && \
     apt-get update -q -qq && \
-    apt-get install -q -qq -y --no-install-recommends tzdata sudo && \
+    apt-get install -q -qq -y --no-install-recommends tzdata sudo > /dev/null && \
     rm -rf /var/lib/apt/lists/*
 
 RUN apt-get update -q -qq && apt-get install -q -qq -y --no-install-recommends \
@@ -22,7 +22,7 @@ RUN apt-get update -q -qq && apt-get install -q -qq -y --no-install-recommends \
         libxdmcp6 \
         libxcb1   \
         libxext6  \
-        libx11-6  && \
+        libx11-6  > /dev/null && \
     rm -rf /var/lib/apt/lists/*
 
 ### set default environment variables
@@ -43,5 +43,5 @@ RUN apt-get update -q -qq && apt-get install -q -qq -y --no-install-recommends \
         libgl1    \
         libglx0   \
         libegl1   \
-        libgles2  && \
+        libgles2  > /dev/null && \
     rm -rf /var/lib/apt/lists/*
