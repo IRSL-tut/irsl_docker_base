@@ -14,10 +14,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        #ubuntu: [ 20.04, 22.04]
-        #cuda: [ none, 11.8.0, 12.1.1 ]
-        ubuntu: [ 20.04 ]
-        cuda: [ none, 11.8.0 ]
+        ubuntu: [ 20.04, 22.04]
+        cuda: [ none, 11.8.0, 12.1.1 ]
         #cuda: [ none, 11.7.1, 11.8.0, 12.0.1, 12.1.1, 12.2.2 ]
     runs-on: self-hosted
     env:
@@ -57,6 +55,7 @@ jobs:
         if: ${{ github.event_name != 'pull_request' }}
         run: |
           docker push ${{ env.OUTPUT_IMAGE }}
+# do not use ros-docker-image for no cuda binary
 # echo "DOCKER_FILES='Dockerfile.add_glvnd Dockerfile.add_virtualgl Dockerfile.add_${{ env.ROS_DISTRO }} Dockerfile.add_entrypoint" >> $GITHUB_ENV
 # echo "INPUT_IMAGE=ubuntu:${{ matrix.ubuntu }}" >> $GITHUB_ENV
 
