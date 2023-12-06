@@ -1,0 +1,70 @@
+name: BuildBase
+#run-name: ${{ github.actor }} is building base image
+#
+on:
+  workflow_dispatch:
+#  push:
+#    branches: [main]
+#  pull_request:
+#    branches: [main]
+#  schedule:
+#    - cron: '30 2 * * 2,6'
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        ubuntu: [ 20.04, 22.04]
+        cuda: [ 11.8.0, 12.1.1 ]
+        #cuda: [ none, 11.8.0, 12.1.1 ]
+        #cuda: [ none, 11.7.1, 11.8.0, 12.0.1, 12.1.1, 12.2.2 ]
+    runs-on: self-hosted
+    env:
+      IMAGE_NAME: irsl_base
+#      DOCKER_LOCAL: ghcr.io/
+#      DOCKER_LOCAL: repo.irsl.eiiris.tut.ac.jp/
+      DOCKER_DEPLOY: repo.irsl.eiiris.tut.ac.jp/
+    steps:
+      - name: Check ROS Version
+        run: |
+          if   [ ${{ matrix.ubuntu }} == 22.04 ]; then
+            echo "ROS_DISTRO=humble" >> $GITHUB_ENV
+          elif [ ${{ matrix.ubuntu }} == 20.04 ]; then
+            echo "ROS_DISTRO=noetic" >> $GITHUB_ENV
+          elif [ ${{ matrix.ubuntu }} == 18.04 ]; then
+            echo "ROS_DISTRO=melodic" >> $GITHUB_ENV
+          else
+            echo "ROS_DISTRO=none" >> $GITHUB_ENV
+          fi
+      - name: Make Build Scequence
+        run: |
+          if  [ ${{ matrix.cuda }} == none ]; then
+            echo "DOCKER_FILES=Dockerfile.add_glvnd Dockerfile.add_virtualgl Dockerfile.add_entrypoint" >> $GITHUB_ENV
+            echo "INPUT_IMAGE=ros:${{ env.ROS_DISTRO }}-ros-base" >> $GITHUB_ENV
+            echo "OUTPUT_IMAGE=${{ env.DOCKER_DEPLOY }}${{ env.IMAGE_NAME }}:${{ env.ROS_DISTRO }}_opengl" >> $GITHUB_ENV
+          else
+            echo "DOCKER_FILES=Dockerfile.add_glvnd Dockerfile.add_virtualgl Dockerfile.add_${{ env.ROS_DISTRO }} Dockerfile.add_entrypoint" >> $GITHUB_ENV
+            echo "INPUT_IMAGE=nvidia/cuda:${{ matrix.cuda }}-cudnn8-devel-ubuntu${{ matrix.ubuntu }}" >> $GITHUB_ENV
+            echo "OUTPUT_IMAGE=${{ env.DOCKER_DEPLOY }}${{ env.IMAGE_NAME }}:${{ env.ROS_DISTRO }}_cuda${{ matrix.cuda }}" >> $GITHUB_ENV
+          fi
+      - name: Check out repository code(src)
+        uses: actions/checkout@v3
+      - name: Sequence Build
+        run: >
+          ./build_sequential.sh ${{ env.DOCKER_FILES }}
+      - name: Deploy
+        if: ${{ github.event_name != 'pull_request' }}
+        run: |
+          docker push ${{ env.OUTPUT_IMAGE }}
+# do not use ros-docker-image for no cuda binary
+# echo "DOCKER_FILES='Dockerfile.add_glvnd Dockerfile.add_virtualgl Dockerfile.add_${{ env.ROS_DISTRO }} Dockerfile.add_entrypoint" >> $GITHUB_ENV
+# echo "INPUT_IMAGE=ubuntu:${{ matrix.ubuntu }}" >> $GITHUB_ENV
+
+##
+# cuda none
+# input ros:<ros>-ros-base
+# output irsl_base:<ros>_opengl
+##
+# cuda + ros
+# input nvidia/cuda:<cuda>-cudnn8-devel-ubuntu<ubuntu>
+# output irsl_base:<ros>_cuda<cuda>

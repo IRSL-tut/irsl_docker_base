@@ -1,0 +1,62 @@
+## from https://github.com/osrf/docker_images/blob/master/ros/noetic/ubuntu/focal/ros-core/Dockerfile
+# This is an auto generated Dockerfile for ros:ros-core
+# generated from docker_images/create_ros_core_image.Dockerfile.em
+#FROM ubuntu:focal
+ARG BASE_IMAGE
+FROM ${BASE_IMAGE}
+
+## TO FIX timezone before here
+# # setup timezone
+# RUN echo 'Etc/UTC' > /etc/timezone && \
+#     ln -s /usr/share/zoneinfo/Etc/UTC /etc/localtime && \
+#     apt-get update && \
+#     apt-get install -q -y --no-install-recommends tzdata && \
+#     rm -rf /var/lib/apt/lists/*
+
+# install packages
+RUN apt-get update -q -qq && apt-get install -q -y --no-install-recommends \
+    dirmngr \
+    gnupg2 ca-certificates lsb-release openssl curl wget > /dev/null \
+    && rm -rf /var/lib/apt/lists/*
+
+# setup sources.list
+RUN echo "deb http://packages.ros.org/ros/ubuntu focal main" > /etc/apt/sources.list.d/ros1-latest.list
+
+# setup keys
+#RUN apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys C1CF6E31E6BADE8868B172B4F42ED6FBAB17C654
+RUN curl -s https://raw.githubusercontent.com/ros/rosdistro/master/ros.asc | apt-key add -
+
+# # setup environment
+# ENV LANG C.UTF-8
+# ENV LC_ALL C.UTF-8
+
+ENV ROS_DISTRO noetic
+
+# install ros packages
+RUN apt-get update -q -qq && apt-get install -q -y --no-install-recommends \
+    ros-noetic-ros-core=1.5.0-1* > /dev/null \
+    && rm -rf /var/lib/apt/lists/*
+
+# # setup entrypoint
+# COPY ./ros_entrypoint.sh /
+# 
+# ENTRYPOINT ["/ros_entrypoint.sh"]
+# CMD ["bash"]
+
+## from https://github.com/osrf/docker_images/blob/master/ros/noetic/ubuntu/focal/ros-base/Dockerfile
+# install bootstrap tools
+RUN apt-get update -q -qq && apt-get install -q --no-install-recommends -y \
+    build-essential \
+    python3-rosdep \
+    python3-rosinstall \
+    python3-vcstools > /dev/null \
+    && rm -rf /var/lib/apt/lists/*
+
+# bootstrap rosdep
+RUN rosdep init && \
+  rosdep update --rosdistro $ROS_DISTRO
+
+# install ros packages
+RUN apt-get update -q -qq && apt-get install -q -y --no-install-recommends \
+    ros-noetic-ros-base=1.5.0-1* > /dev/null \
+    && rm -rf /var/lib/apt/lists/*
