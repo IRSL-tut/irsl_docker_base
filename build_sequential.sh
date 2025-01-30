@@ -51,5 +51,6 @@ done
 
 docker tag ${_INPUT_IMAGE} ${_OUTPUT_IMAGE}
 
+# INPUT_IMAGE=ubuntu:24.04 OUTPUT_IMAGE=repo.irsl.eiiris.tut.ac.jp/irsl_base:one_nvidia ./build_sequential.sh Dockerfile.add_glvnd Dockerfile.add_virtualgl Dockerfile.add_one Dockerfile.add_entrypoint
 # INPUT_IMAGE=ubuntu:22.04 ./build_sequential.sh Dockerfile.add_glvnd Dockerfile.add_virtualgl Dockerfile.add_humble Dockerfile.add_entrypoint
-# INPUT_IMAGE=ubuntu:20.04 ./build_sequential.sh Dockerfile.add_glvnd Dockerfile.add_virtualgl Dockerfile.add_humble Dockerfile.add_entrypoint
+# INPUT_IMAGE=ubuntu:20.04 ./build_sequential.sh Dockerfile.add_glvnd Dockerfile.add_virtualgl Dockerfile.add_noetic Dockerfile.add_entrypoint
