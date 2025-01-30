@@ -1,0 +1,60 @@
+## from https://github.com/osrf/docker_images/blob/master/ros/noetic/ubuntu/focal/ros-core/Dockerfile
+# This is an auto generated Dockerfile for ros:ros-core
+# generated from docker_images/create_ros_core_image.Dockerfile.em
+#FROM ubuntu:focal
+ARG BASE_IMAGE
+FROM ${BASE_IMAGE}
+
+## TO FIX timezone before here
+# # setup timezone
+# RUN echo 'Etc/UTC' > /etc/timezone && \
+#     ln -s /usr/share/zoneinfo/Etc/UTC /etc/localtime && \
+#     apt-get update && \
+#     apt-get install -q -y --no-install-recommends tzdata && \
+#     rm -rf /var/lib/apt/lists/*
+
+# install packages
+RUN apt-get update -q -qq && apt-get install -q -y --no-install-recommends \
+    dirmngr \
+    gnupg2 ca-certificates lsb-release openssl curl wget > /dev/null \
+    && rm -rf /var/lib/apt/lists/*
+
+# setup sources.list
+RUN curl -sSL https://ros.packages.techfak.net/gpg.key -o /etc/apt/keyrings/ros-one-keyring.gpg
+RUN echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/ros-one-keyring.gpg] https://ros.packages.techfak.net $(lsb_release -cs) main" |  tee /etc/apt/sources.list.d/ros1.list
+RUN echo "# deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/ros-one-keyring.gpg] https://ros.packages.techfak.net $(lsb_release -cs) main-dbg" |  tee -a /etc/apt/sources.list.d/ros1.list
+
+# # setup environment
+# ENV LANG C.UTF-8
+# ENV LC_ALL C.UTF-8
+
+ENV ROS_DISTRO one
+
+# install ros packages
+RUN apt-get update -q -qq && apt-get install -q -y --no-install-recommends \
+    ros-one-ros-core > /dev/null \
+    && rm -rf /var/lib/apt/lists/*
+
+# # setup entrypoint
+# COPY ./ros_entrypoint.sh /
+# 
+# ENTRYPOINT ["/ros_entrypoint.sh"]
+# CMD ["bash"]
+
+## from https://github.com/osrf/docker_images/blob/master/ros/noetic/ubuntu/focal/ros-base/Dockerfile
+# install bootstrap tools
+RUN apt-get update -q -qq && apt-get install -q --no-install-recommends -y \
+    build-essential \
+    python3-rosdep \
+    python3-vcstool > /dev/null \
+    && rm -rf /var/lib/apt/lists/*
+
+# bootstrap rosdep
+RUN rosdep init && \
+    echo "yaml https://ros.packages.techfak.net/ros-one.yaml ubuntu" >> /etc/ros/rosdep/sources.list.d/1-ros-one.list && \
+    rosdep update
+
+# install ros packages
+RUN apt-get update -q -qq && apt-get install -q -y --no-install-recommends \
+    ros-one-ros-base > /dev/null \
+    && rm -rf /var/lib/apt/lists/*
