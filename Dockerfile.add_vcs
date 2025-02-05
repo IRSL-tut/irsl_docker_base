@@ -1,0 +1,6 @@
+ARG BASE_IMAGE
+FROM ${BASE_IMAGE}
+
+RUN apt-get update -q -qq && apt-get install -q --no-install-recommends -y \
+    python3-vcstool > /dev/null \
+    && rm -rf /var/lib/apt/lists/*
