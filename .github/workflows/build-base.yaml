@@ -14,7 +14,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        ubuntu: [ 20.04, 22.04, 24.04one] ## 22.04one, 24.04
+        ubuntu: [ 20.04, 24.04, 24.04one] ## 22.04 22.04one
     runs-on: self-hosted
     env:
       IMAGE_NAME: irsl_base
