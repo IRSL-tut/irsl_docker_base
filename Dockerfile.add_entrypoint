@@ -1,7 +1,7 @@
-ARG BASE_IMAGE
+ARG BASE_IMAGE=ubuntu:24.04
 FROM ${BASE_IMAGE}
 
-LABEL maintainer "IRSL-tut (https://github.com/IRSL-tut) <faculty@irsl.eiiris.tut.ac.jp>"
+LABEL maintainer="IRSL-tut (https://github.com/IRSL-tut) <faculty@irsl.eiiris.tut.ac.jp>"
 
 RUN mkdir -p /ros_home/log && chmod a+rwx /ros_home && chmod a+rwx /ros_home/log
 
