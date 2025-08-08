@@ -5,7 +5,13 @@
 ARG BASE_IMAGE=ubuntu:24.04
 FROM ${BASE_IMAGE}
 
-## TO FIX timezone before here
+RUN if [ ! -e /etc/timezone ]; then \ 
+    echo "Etc/UTC" > /etc/timezone && \ 
+    ln -s /usr/share/zoneinfo/Etc/UTC /etc/localtime && \ 
+    apt-get update && \ 
+    apt-get install -q -y --no-install-recommends tzdata && \ 
+    rm -rf /var/lib/apt/lists/* ; \ 
+    fi
 # # setup timezone
 # RUN echo 'Etc/UTC' > /etc/timezone && \
 #     ln -s /usr/share/zoneinfo/Etc/UTC /etc/localtime && \

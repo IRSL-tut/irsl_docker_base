@@ -9,4 +9,9 @@
 
 ## 使い方
 
-TODO
+- Update Dockerfile.add_<rosdistro>
+./gen_add_ros.sh
+
+## reference
+
+https://github.com/osrf/docker_images
