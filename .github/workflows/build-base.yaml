@@ -14,7 +14,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        ubuntu: [ 20.04, 24.04, 24.04one] ## 22.04 22.04one
+        ubuntu: [ 20.04, 24.04, 24.04one] ## 22.04 22.04one 24.04rolling
     runs-on: self-hosted
     env:
       IMAGE_NAME: irsl_base
@@ -26,16 +26,25 @@ jobs:
         run: |
           if   [ ${{ matrix.ubuntu }} == 24.04one ]; then
             echo "ROS_DISTRO=one" >> $GITHUB_ENV
+            echo "UBUNTU_VER=24.04" >> $GITHUB_ENV
+          elif [ ${{ matrix.ubuntu }} == 24.04rolling ]; then
+            echo "ROS_DISTRO=rolling" >> $GITHUB_ENV
+            echo "UBUNTU_VER=24.04" >> $GITHUB_ENV
           elif [ ${{ matrix.ubuntu }} == 24.04 ]; then
             echo "ROS_DISTRO=jazzy" >> $GITHUB_ENV
+            echo "UBUNTU_VER=24.04" >> $GITHUB_ENV
           elif [ ${{ matrix.ubuntu }} == 22.04one ]; then
             echo "ROS_DISTRO=one" >> $GITHUB_ENV
+            echo "UBUNTU_VER=22.04" >> $GITHUB_ENV
           elif [ ${{ matrix.ubuntu }} == 22.04 ]; then
             echo "ROS_DISTRO=humble" >> $GITHUB_ENV
+            echo "UBUNTU_VER=22.04" >> $GITHUB_ENV
           elif [ ${{ matrix.ubuntu }} == 20.04 ]; then
             echo "ROS_DISTRO=noetic" >> $GITHUB_ENV
+            echo "UBUNTU_VER=20.04" >> $GITHUB_ENV
           elif [ ${{ matrix.ubuntu }} == 18.04 ]; then
             echo "ROS_DISTRO=melodic" >> $GITHUB_ENV
+            echo "UBUNTU_VER=18.04" >> $GITHUB_ENV
           else
             echo "ROS_DISTRO=none" >> $GITHUB_ENV
           fi
@@ -43,17 +52,12 @@ jobs:
         run: |
           if  [ ${{ env.ROS_DISTRO }} == "one" ]; then
             echo "DOCKER_FILES=Dockerfile.add_glvnd Dockerfile.add_virtualgl Dockerfile.add_one Dockerfile.add_vcs Dockerfile.add_entrypoint" >> $GITHUB_ENV
-            if [ ${{ matrix.ubuntu }} == 22.04one ]; then
-                echo "INPUT_IMAGE=ubuntu:22.04" >> $GITHUB_ENV
-            else
-                echo "INPUT_IMAGE=ubuntu:24.04" >> $GITHUB_ENV
-            fi
-            echo "OUTPUT_IMAGE=${{ env.DOCKER_DEPLOY }}${{ env.IMAGE_NAME }}:${{ env.ROS_DISTRO }}_opengl" >> $GITHUB_ENV
+            echo "INPUT_IMAGE=ubuntu:${UBUNTU_VER}" >> $GITHUB_ENV
           else
-            echo "DOCKER_FILES=Dockerfile.add_glvnd Dockerfile.add_virtualgl    Dockerfile.add_vcs Dockerfile.add_entrypoint" >> $GITHUB_ENV
+            echo "DOCKER_FILES=Dockerfile.add_glvnd Dockerfile.add_virtualgl Dockerfile.add_vcs Dockerfile.add_entrypoint" >> $GITHUB_ENV
             echo "INPUT_IMAGE=ros:${{ env.ROS_DISTRO }}-ros-base" >> $GITHUB_ENV
-            echo "OUTPUT_IMAGE=${{ env.DOCKER_DEPLOY }}${{ env.IMAGE_NAME }}:${{ env.ROS_DISTRO }}_opengl" >> $GITHUB_ENV
           fi
+          echo "OUTPUT_IMAGE=${{ env.DOCKER_DEPLOY }}${{ env.IMAGE_NAME }}:opengl_${UBUNTU_VER}_${ROS_DISTRO}" >> $GITHUB_ENV
           echo "PULL=yes" >> $GITHUB_ENV
       - name: Check out repository code(src)
         uses: actions/checkout@v3

@@ -45,3 +45,14 @@ RUN apt-get update -q -qq && apt-get install -q -qq -y --no-install-recommends \
         libegl1   \
         libgles2  > /dev/null && \
     rm -rf /var/lib/apt/lists/*
+
+RUN <<EOF
+cat <<- _DOC_ >> /usr/share/glvnd/egl_vendor.d/10_nvidia.json
+{
+    "file_format_version" : "1.0.0",
+    "ICD" : {
+        "library_path" : "libEGL_nvidia.so.0"
+    }
+}
+_DOC_
+EOF

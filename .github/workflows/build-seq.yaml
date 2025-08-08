@@ -47,6 +47,9 @@ jobs:
           if   [ ${{ matrix.ubuntu }} == 24.04one ]; then
             echo "ROS_DISTRO=one" >> $GITHUB_ENV
             echo "UBUNTU_VER=24.04" >> $GITHUB_ENV
+          elif [ ${{ matrix.ubuntu }} == 24.04rolling ]; then
+            echo "ROS_DISTRO=rolling" >> $GITHUB_ENV
+            echo "UBUNTU_VER=24.04" >> $GITHUB_ENV
           elif [ ${{ matrix.ubuntu }} == 24.04 ]; then
             echo "ROS_DISTRO=jazzy" >> $GITHUB_ENV
             echo "UBUNTU_VER=24.04" >> $GITHUB_ENV
@@ -69,19 +72,19 @@ jobs:
         run: |
           if [ ${{ matrix.cuda }} == "none" ]; then
             if [ ${{ env.ROS_DISTRO }} == "one" ]; then
-              echo "DOCKER_FILES=Dockerfile.add_glvnd Dockerfile.add_virtualgl Dockerfile.add_one Dockerfile.add_vcs Dockerfile.add_entrypoint" >> $GITHUB_ENV
+              echo "DOCKER_FILES=Dockerfile.add_glvnd Dockerfile.add_virtualgl Dockerfile.add_one         Dockerfile.add_vcs Dockerfile.add_entrypoint" >> $GITHUB_ENV
               echo "INPUT_IMAGE=ubuntu:${UBUNTU_VER}" >> $GITHUB_ENV
-              echo "OUTPUT_IMAGE=${{ env.DOCKER_DEPLOY }}${{ env.IMAGE_NAME }}:${{ env.ROS_DISTRO }}_opengl" >> $GITHUB_ENV
             else
-              echo "DOCKER_FILES=Dockerfile.add_glvnd Dockerfile.add_virtualgl    Dockerfile.add_vcs Dockerfile.add_entrypoint" >> $GITHUB_ENV
+              echo "DOCKER_FILES=Dockerfile.add_glvnd Dockerfile.add_virtualgl                            Dockerfile.add_vcs Dockerfile.add_entrypoint" >> $GITHUB_ENV
               echo "INPUT_IMAGE=ros:${{ env.ROS_DISTRO }}-ros-base" >> $GITHUB_ENV
-              echo "OUTPUT_IMAGE=${{ env.DOCKER_DEPLOY }}${{ env.IMAGE_NAME }}:${{ env.ROS_DISTRO }}_opengl" >> $GITHUB_ENV
             fi
+            echo "OUTPUT_IMAGE=${{ env.DOCKER_DEPLOY }}${{ env.IMAGE_NAME }}:opengl_${UBUNTU_VER}_${ROS_DISTRO}" >> $GITHUB_ENV
           else
             echo "DOCKER_FILES=Dockerfile.add_glvnd Dockerfile.add_virtualgl Dockerfile.add_${ROS_DISTRO} Dockerfile.add_vcs Dockerfile.add_entrypoint" >> $GITHUB_ENV
             echo "INPUT_IMAGE=nvidia/cuda:${{ matrix.cuda }}-devel-ubuntu${UBUNTU_VER}" >> $GITHUB_ENV
             echo "OUTPUT_IMAGE=${{ env.DOCKER_DEPLOY }}${{ env.IMAGE_NAME }}:cuda_${{ matrix.cuda }}-devel-ubuntu${UBUNTU_VER}_${ROS_DISTRO}" >> $GITHUB_ENV
           fi
+          echo "PULL=yes" >> $GITHUB_ENV
       - name: Check out repository code(src)
         uses: actions/checkout@v3
       - name: Sequence Build
@@ -98,9 +101,8 @@ jobs:
 ##
 # cuda none
 # input ros:<ros>-ros-base
-# output irsl_base:<ros>_opengl
+# output irsl_base:opengl_<ubuntu>_<ros>
 ##
 # cuda + ros
-# input nvidia/cuda:<cuda>-cudnn8-devel-ubuntu<ubuntu>
-# output irsl_base:<ros>_cuda<cuda>
-
+# input nvidia/cuda:<cuda>-devel-ubuntu<ubuntu>
+# output irsl_base:cuda_<cuda>-devel-ubuntu<ubuntu>_<ros>
