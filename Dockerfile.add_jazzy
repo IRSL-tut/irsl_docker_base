@@ -1,6 +1,6 @@
 # This is an auto generated Dockerfile for ros:ros-core
-# generated from docker_images/create_ros_core_image.Dockerfile.em
-ARG BASE_IMAGE=ubuntu:focal
+# generated from docker_images_ros2/create_ros_core_image.Dockerfile.em
+ARG BASE_IMAGE=ubuntu:noble
 FROM ${BASE_IMAGE}
 
 RUN if [ ! -e /etc/timezone ]; then \ 
@@ -26,28 +26,23 @@ RUN apt-get update && apt-get install -q -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
 
-# setup keys
-RUN set -eux; \
-       key='4B63CF8FDE49746E98FA01DDAD19BAB3CBF125EA'; \
-       export GNUPGHOME="$(mktemp -d)"; \
-       gpg --batch --keyserver keyserver.ubuntu.com --recv-keys "$key"; \
-       mkdir -p /usr/share/keyrings; \
-       gpg --batch --export "$key" > /usr/share/keyrings/ros1-snapshots-archive-keyring.gpg; \
-       gpgconf --kill all; \
-       rm -rf "$GNUPGHOME"
-
-# setup sources.list
-RUN echo "deb [ signed-by=/usr/share/keyrings/ros1-snapshots-archive-keyring.gpg ] http://snapshots.ros.org/noetic/final/ubuntu focal main" > /etc/apt/sources.list.d/ros1-snapshots.list
+# Setup ROS Apt sources
+RUN curl -L -s -o /tmp/ros2-apt-source.deb https://github.com/ros-infrastructure/ros-apt-source/releases/download/1.1.0/ros2-apt-source_1.1.0.noble_all.deb \
+    && echo "35441f3092fd05773a3c397fab38661bec466584c7a1f1c05366579997cb5fe7 /tmp/ros2-apt-source.deb" | sha256sum --strict --check \
+    && apt-get update \
+    && apt-get install /tmp/ros2-apt-source.deb \
+    && rm -f /tmp/ros2-apt-source.deb \
+    && rm -rf /var/lib/apt/lists/*
 
 ## setup environment
 #ENV LANG=C.UTF-8
 #ENV LC_ALL=C.UTF-8
 #
-ENV ROS_DISTRO=noetic
+ENV ROS_DISTRO=jazzy
 
-# install ros packages
+# install ros2 packages
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    ros-noetic-ros-core=1.5.0-1* \
+    ros-jazzy-ros-core=0.11.0-1* \
     && rm -rf /var/lib/apt/lists/*
 
 ## setup entrypoint
@@ -57,23 +52,33 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 #CMD ["bash"]
 #### start:ros-base
 ## This is an auto generated Dockerfile for ros:ros-base
-## generated from docker_images/create_ros_image.Dockerfile.em
-#FROM ros:noetic-ros-core-focal
+## generated from docker_images_ros2/create_ros_image.Dockerfile.em
+#FROM ros:jazzy-ros-core-noble
 #
 # install bootstrap tools
 RUN apt-get update && apt-get install --no-install-recommends -y \
     build-essential \
+    git \
+    python3-colcon-common-extensions \
+    python3-colcon-mixin \
     python3-rosdep \
-    python3-rosinstall \
-    python3-vcstools \
+    python3-vcstool \
     && rm -rf /var/lib/apt/lists/*
 
 # bootstrap rosdep
 RUN rosdep init && \
   rosdep update --rosdistro $ROS_DISTRO
 
-# install ros packages
+# setup colcon mixin and metadata
+RUN colcon mixin add default \
+      https://raw.githubusercontent.com/colcon/colcon-mixin-repository/master/index.yaml && \
+    colcon mixin update && \
+    colcon metadata add default \
+      https://raw.githubusercontent.com/colcon/colcon-metadata-repository/master/index.yaml && \
+    colcon metadata update
+
+# install ros2 packages
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    ros-noetic-ros-base=1.5.0-1* \
+    ros-jazzy-ros-base=0.11.0-1* \
     && rm -rf /var/lib/apt/lists/*
 
