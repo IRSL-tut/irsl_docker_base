@@ -1,14 +1,14 @@
-name: BuildBase(Cuda)
+name: BuildBase
 #run-name: ${{ github.actor }} is building base image
 #
 on:
   workflow_dispatch:
-#  push:
-#    branches: [main]
-#  pull_request:
-#    branches: [main]
-#  schedule:
-#    - cron: '30 2 * * 2,6'
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  schedule:
+    - cron: '30 2 * * 2,6'
 jobs:
   build:
     strategy:
@@ -80,7 +80,7 @@ jobs:
           fi
       - name: Make Build Scequence(Cuda)
         if: ${{ matrix.cuda != 'none' }}
-        run:
+        run: |
           echo "DOCKER_FILES=Dockerfile.add_glvnd Dockerfile.add_virtualgl Dockerfile.add_${ROS_DISTRO} Dockerfile.add_vcs Dockerfile.add_entrypoint" >> $GITHUB_ENV
           echo "INPUT_IMAGE=nvidia/cuda:${{ matrix.cuda }}-devel-ubuntu${UBUNTU_VER}" >> $GITHUB_ENV
           echo "OUTPUT_IMAGE=${{ env.DOCKER_DEPLOY }}${{ env.IMAGE_NAME }}:cuda_${{ matrix.cuda }}-devel-ubuntu${UBUNTU_VER}_${ROS_DISTRO}" >> $GITHUB_ENV
@@ -106,15 +106,21 @@ jobs:
         if: ${{ github.event_name != 'pull_request' }}
         run: |
           docker push ${{ env.OUTPUT_IMAGE }}
-# do not use ros-docker-image for no cuda binary
-# echo "DOCKER_FILES='Dockerfile.add_glvnd Dockerfile.add_virtualgl Dockerfile.add_${{ env.ROS_DISTRO }} Dockerfile.add_entrypoint" >> $GITHUB_ENV
-# echo "INPUT_IMAGE=ubuntu:${{ matrix.ubuntu }}" >> $GITHUB_ENV
+##
+# Base
+# INPUT_IMAGE  ros:<ros>-ros-base
+# OUTPUT_IMAGE irsl_base:opengl_<ubuntu>_<ros>
+# Base <one> ( use Dockerfile.add_one )
+# INPUT_IMAGE  ubuntu:<ubuntu>
+# OUTPUT_IMAGE irsl_base:opengl_<ubuntu>_one
+##
+# With CUDA ( use Dockerfile.add_<ros> )
+# INPUT_IMAGE  nvidia/cuda:<cuda>-devel-ubuntu<ubuntu>
+# OUTPUT_IMAGE irsl_base:cuda_<cuda>-devel-ubuntu<ubuntu>_<ros>
 
-##
-# cuda none
-# input ros:<ros>-ros-base
-# output irsl_base:opengl_<ubuntu>_<ros>
-##
-# cuda + ros
-# input nvidia/cuda:<cuda>-devel-ubuntu<ubuntu>
-# output irsl_base:cuda_<cuda>-devel-ubuntu<ubuntu>_<ros>
+## Base
+# INPUT_IMAGE=ubuntu:24.04 OUTPUT_IMAGE=irsl_base:opengl_24.04_one ./build_sequential.sh Dockerfile.add_glvnd Dockerfile.add_virtualgl Dockerfile.add_one Dockerfile.add_vcs Dockerfile.add_entrypoint
+# INPUT_IMAGE=ubuntu:22.04 OUTPUT_IMAGE=irsl_base:opengl_22.04_one ./build_sequential.sh Dockerfile.add_glvnd Dockerfile.add_virtualgl Dockerfile.add_one Dockerfile.add_vcs Dockerfile.add_entrypoint
+# INPUT_IMAGE=ros:noetic-ros-base OUTPUT_IMAGE=irsl_base:opengl_20.04_noetic ./build_sequential.sh Dockerfile.add_glvnd Dockerfile.add_virtualgl Dockerfile.add_vcs Dockerfile.add_entrypoint
+# INPUT_IMAGE=ros:humble-ros-base OUTPUT_IMAGE=irsl_base:opengl_22.04_humble ./build_sequential.sh Dockerfile.add_glvnd Dockerfile.add_virtualgl Dockerfile.add_vcs Dockerfile.add_entrypoint
+# INPUT_IMAGE=ros:jazzy-ros-base OUTPUT_IMAGE=irsl_base:opengl_22.04_jazzy ./build_sequential.sh Dockerfile.add_glvnd Dockerfile.add_virtualgl Dockerfile.add_vcs Dockerfile.add_entrypoint

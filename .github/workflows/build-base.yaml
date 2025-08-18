@@ -1,14 +1,14 @@
-name: BuildBase
+name: BuildBase(Old)
 #run-name: ${{ github.actor }} is building base image
 #
 on:
   workflow_dispatch:
-  push:
-    branches: [main]
-  pull_request:
-    branches: [main]
-  schedule:
-    - cron: '30 2 * * 2,6'
+#  push:
+#    branches: [main]
+#  pull_request:
+#    branches: [main]
+#  schedule:
+#    - cron: '30 2 * * 2,6'
 jobs:
   build:
     strategy:
