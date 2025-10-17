@@ -29,9 +29,17 @@ if [ -z "${_INPUT_IMAGE}" ]; then
 fi
 
 if [ -n "${_PULL}" ]; then
+    set +e
     set -x
-    docker pull ${_INPUT_IMAGE}
+    for i in {1..10}
+    do
+        docker pull ${_INPUT_IMAGE}
+        if [ $? -eq 0 ]; then
+            break;
+        fi
+    done
     set +x
+    set -e
 fi
 
 _CNTR=0
