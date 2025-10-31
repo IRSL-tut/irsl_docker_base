@@ -2,5 +2,5 @@ ARG BASE_IMAGE=ubuntu:24.04
 FROM ${BASE_IMAGE}
 
 RUN apt-get update -q -qq && apt-get install -q --no-install-recommends -y \
-    python3-vcstool > /dev/null \
+    python3-vcstool python3-venv > /dev/null \
     && rm -rf /var/lib/apt/lists/*

@@ -12,26 +12,43 @@ exec "$@"\n' >> /irsl_entrypoint.sh
 
 RUN chmod a+x /irsl_entrypoint.sh
 
-RUN echo -e '# setup ros environment\n\
-if [ -e "${DOCKER_ROS_SETUP}" ]; then\n\
-    source "${DOCKER_ROS_SETUP}"\n\
-else\n\
-    source "/opt/ros/$ROS_DISTRO/setup.bash"\n\
-fi\n\
-MY_IP=${DOCKER_ROS_IP:-$(hostname -i)}\n\
-if [ "$ROS_IP" == "" ]; then\n\
-    export ROS_IP=${MY_IP}\n\
-fi\n\
-if [ "$ROS_HOSTNAME" == "" ]; then\n\
-    export ROS_HOSTNAME=${ROS_IP}\n\
-fi\n\
-if [ "${DOCKER_ROS_MASTER_URI}" != "" ]; then\n\
-    export ROS_MASTER_URI=${DOCKER_ROS_MASTER_URI}\n\
-fi\n\
-if [ -n "${_EXTRA_PATH}" ]; then\n\
-    export PATH=$PATH:${_EXTRA_PATH}\n\
-fi\n\
-export HOME=/ros_home\n\
-export ROS_HOME=/ros_home\n' >>  /irsl_entryrc
+RUN <<EOF
+cat - << _DOC_ >> /irsl_entryrc
+# setup ros environment
+if [ -e "${DOCKER_ROS_SETUP}" ]; then
+    source "${DOCKER_ROS_SETUP}"
+else
+    source "/opt/ros/$ROS_DISTRO/setup.bash"
+fi
+MY_IP=${DOCKER_ROS_IP:-$(hostname -i)}
+if [ "$ROS_IP" == "" ]; then
+    export ROS_IP=${MY_IP}
+fi
+if [ "$ROS_HOSTNAME" == "" ]; then
+    export ROS_HOSTNAME=${ROS_IP}
+fi
+if [ "${DOCKER_ROS_MASTER_URI}" != "" ]; then
+    export ROS_MASTER_URI=${DOCKER_ROS_MASTER_URI}
+fi
+if [ -n "${IRSL_EXTRA_PATH}" ]; then
+    export PATH=$PATH:${IRSL_EXTRA_PATH}
+fi
+if [ -n "${IRSL_EXTRA_LIB}" ]; then
+    export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:${IRSL_EXTRA_LIB}
+fi
+if [ -n "${IRSL_ADD_SOURCE}" ]; then
+    if [ -e "${IRSL_ADD_SOURCE}" ]; then
+        source "${IRSL_ADD_SOURCE}"
+    fi
+fi
+export HOME=/ros_home
+export ROS_HOME=/ros_home
+
+## activate virtual env
+if [ -e /irsl_venv/bin/activate ]; then
+    source /irsl_venv/bin/activate
+fi
+_DOC_
+EOF
 
 ENTRYPOINT ["/irsl_entrypoint.sh"]
