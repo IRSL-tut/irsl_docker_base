@@ -15,30 +15,30 @@ RUN chmod a+x /irsl_entrypoint.sh
 RUN <<EOF
 cat - << _DOC_ >> /irsl_entryrc
 # setup ros environment
-if [ -e "${DOCKER_ROS_SETUP}" ]; then
-    source "${DOCKER_ROS_SETUP}"
+if [ -e "\${DOCKER_ROS_SETUP}" ]; then
+    source "\${DOCKER_ROS_SETUP}"
 else
-    source "/opt/ros/$ROS_DISTRO/setup.bash"
+    source "/opt/ros/\$ROS_DISTRO/setup.bash"
 fi
-MY_IP=${DOCKER_ROS_IP:-$(hostname -i)}
-if [ "$ROS_IP" == "" ]; then
-    export ROS_IP=${MY_IP}
+MY_IP=\${DOCKER_ROS_IP:-\$(hostname -i)}
+if [ "\$ROS_IP" == "" ]; then
+    export ROS_IP=\${MY_IP}
 fi
-if [ "$ROS_HOSTNAME" == "" ]; then
-    export ROS_HOSTNAME=${ROS_IP}
+if [ "\$ROS_HOSTNAME" == "" ]; then
+    export ROS_HOSTNAME=\${ROS_IP}
 fi
-if [ "${DOCKER_ROS_MASTER_URI}" != "" ]; then
-    export ROS_MASTER_URI=${DOCKER_ROS_MASTER_URI}
+if [ "\${DOCKER_ROS_MASTER_URI}" != "" ]; then
+    export ROS_MASTER_URI=\${DOCKER_ROS_MASTER_URI}
 fi
-if [ -n "${IRSL_EXTRA_PATH}" ]; then
-    export PATH=$PATH:${IRSL_EXTRA_PATH}
+if [ -n "\${IRSL_EXTRA_PATH}" ]; then
+    export PATH=\$PATH:\${IRSL_EXTRA_PATH}
 fi
-if [ -n "${IRSL_EXTRA_LIB}" ]; then
-    export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:${IRSL_EXTRA_LIB}
+if [ -n "\${IRSL_EXTRA_LIB}" ]; then
+    export LD_LIBRARY_PATH=\$LD_LIBRARY_PATH:\${IRSL_EXTRA_LIB}
 fi
-if [ -n "${IRSL_ADD_SOURCE}" ]; then
-    if [ -e "${IRSL_ADD_SOURCE}" ]; then
-        source "${IRSL_ADD_SOURCE}"
+if [ -n "\${IRSL_ADD_SOURCE}" ]; then
+    if [ -e "\${IRSL_ADD_SOURCE}" ]; then
+        source "\${IRSL_ADD_SOURCE}"
     fi
 fi
 export HOME=/ros_home
