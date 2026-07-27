@@ -25,6 +25,14 @@ function conditional_set_timezone {
     sed -i -e 's@^## setup timezone@RUN if [ ! -e /etc/timezone ]; then \\ \n    echo "Etc/UTC" > /etc/timezone \&\& \\ \n    ln -s /usr/share/zoneinfo/Etc/UTC /etc/localtime \&\& \\ \n    apt-get update \&\& \\ \n    apt-get install -q -y --no-install-recommends tzdata \&\& \\ \n    rm -rf /var/lib/apt/lists/* ; \\ \n    fi\n## setup timezone(org)@' $1
 }
 
+## noetic 20.04
+FNAME=Dockerfile.add_noetic
+wget ${BASE}master/ros/noetic/ubuntu/focal/ros-core/Dockerfile -O - >  "${FNAME}"
+echo "### start:ros-base" >> "${FNAME}"
+wget ${BASE}master/ros/noetic/ubuntu/focal/ros-base/Dockerfile -O - >> "${FNAME}"
+fix_downloaded "${FNAME}"
+conditional_set_timezone "${FNAME}"
+
 ## humble 22.04
 FNAME=Dockerfile.add_humble
 wget ${BASE}master/ros/humble/ubuntu/jammy/ros-core/Dockerfile -O - >  "${FNAME}"
@@ -41,11 +49,11 @@ wget ${BASE}master/ros/jazzy/ubuntu/noble/ros-base/Dockerfile -O - >> "${FNAME}"
 fix_downloaded "${FNAME}"
 conditional_set_timezone "${FNAME}"
 
-## noetic 20.04
-FNAME=Dockerfile.add_noetic
-wget ${BASE}master/ros/noetic/ubuntu/focal/ros-core/Dockerfile -O - >  "${FNAME}"
+## lyrical 26.04
+FNAME=Dockerfile.add_lyrical
+wget ${BASE}master/ros/lyrical/ubuntu/resolute/ros-core/Dockerfile -O - >  "${FNAME}"
 echo "### start:ros-base" >> "${FNAME}"
-wget ${BASE}master/ros/noetic/ubuntu/focal/ros-base/Dockerfile -O - >> "${FNAME}"
+wget ${BASE}master/ros/lyrical/ubuntu/resolute/ros-base/Dockerfile -O - >> "${FNAME}"
 fix_downloaded "${FNAME}"
 conditional_set_timezone "${FNAME}"
 

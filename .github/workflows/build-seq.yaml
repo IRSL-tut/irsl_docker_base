@@ -41,10 +41,14 @@ jobs:
             cuda: none
           - ubuntu: 24.04
             cuda: none
+          - ubuntu: 26.04
+            cuda: none
           - ubuntu: 22.04one
             cuda: none
           - ubuntu: 24.04one
             cuda: none
+          #- ubuntu: 26.04one
+          #  cuda: none
     runs-on: self-hosted
     env:
       IMAGE_NAME: irsl_base
@@ -54,18 +58,24 @@ jobs:
     steps:
       - name: Check Version
         run: |
-          if   [ ${{ matrix.ubuntu }} == 24.04one ]; then
+          if   [ ${{ matrix.ubuntu }} == 26.04one ]; then
             echo "ROS_DISTRO=one" >> $GITHUB_ENV
-            echo "UBUNTU_VER=24.04" >> $GITHUB_ENV
-          elif [ ${{ matrix.ubuntu }} == 24.04rolling ]; then
-            echo "ROS_DISTRO=rolling" >> $GITHUB_ENV
-            echo "UBUNTU_VER=24.04" >> $GITHUB_ENV
-          elif [ ${{ matrix.ubuntu }} == 24.04 ]; then
-            echo "ROS_DISTRO=jazzy" >> $GITHUB_ENV
+            echo "UBUNTU_VER=26.04" >> $GITHUB_ENV
+          elif [ ${{ matrix.ubuntu }} == 24.04one ]; then
+            echo "ROS_DISTRO=one" >> $GITHUB_ENV
             echo "UBUNTU_VER=24.04" >> $GITHUB_ENV
           elif [ ${{ matrix.ubuntu }} == 22.04one ]; then
             echo "ROS_DISTRO=one" >> $GITHUB_ENV
             echo "UBUNTU_VER=22.04" >> $GITHUB_ENV
+          elif [ ${{ matrix.ubuntu }} == 24.04rolling ]; then
+            echo "ROS_DISTRO=rolling" >> $GITHUB_ENV
+            echo "UBUNTU_VER=24.04" >> $GITHUB_ENV
+          elif [ ${{ matrix.ubuntu }} == 26.04 ]; then
+            echo "ROS_DISTRO=lyrical" >> $GITHUB_ENV
+            echo "UBUNTU_VER=26.04" >> $GITHUB_ENV
+          elif [ ${{ matrix.ubuntu }} == 24.04 ]; then
+            echo "ROS_DISTRO=jazzy" >> $GITHUB_ENV
+            echo "UBUNTU_VER=24.04" >> $GITHUB_ENV
           elif [ ${{ matrix.ubuntu }} == 22.04 ]; then
             echo "ROS_DISTRO=humble" >> $GITHUB_ENV
             echo "UBUNTU_VER=22.04" >> $GITHUB_ENV
