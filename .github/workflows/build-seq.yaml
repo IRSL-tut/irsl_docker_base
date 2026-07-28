@@ -118,7 +118,7 @@ jobs:
           for i in {1..10}
           do
               docker push ${{ env.OUTPUT_IMAGE }}
-              if [ $? eq 0 ]; then
+              if [ $? -eq 0 ]; then
                   break;
               fi
           done
