@@ -12,6 +12,8 @@ function fix_downloaded {
     #sed -i '/^FROM/d'                           $1
     #sed -i '1i FROM ${BASE_IMAGE}'              $1
     sed -i -e 's/^FROM \(.*\)/ARG BASE_IMAGE=\1\nFROM ${BASE_IMAGE}/' $1
+    ##
+    sed -i -e 's@# setup colcon mixin and metadata@## HOTFIX for build\nRUN touch /root/.netrc && chmod 600 /root/.netrc\n# setup colcon mixin and metadata@' $1
 }
 
 #RUN if [ ! -e /etc/timezone ]; then \
