@@ -1,0 +1,51 @@
+ARG BASE_IMAGE=repo.irsl.eiiris.tut.ac.jp/irsl_system:24.04_jazzy
+FROM ${BASE_IMAGE}
+
+ARG PYTHON_VER=''
+
+###
+LABEL maintainer="IRSL-tut (https://github.com/IRSL-tut) <faculty@irsl.eiiris.tut.ac.jp>"
+
+SHELL ["/bin/bash", "-c"]
+
+# https://qiita.com/haessal/items/0a83fe9fa1ac00ed5ee9
+ENV DEBCONF_NOWARNINGS=yes
+# https://qiita.com/yagince/items/deba267f789604643bab
+ENV DEBIAN_FRONTEND=noninteractive
+# https://qiita.com/jacob_327/items/e99ca1cf8167d4c1486d
+ENV APT_KEY_DONT_WARN_ON_DANGEROUS_USAGE=1
+
+RUN apt update -q -qq && \
+    apt install -q -qq -y curl wget git bc lsb-release less vim-tiny aptitude && \
+    apt clean && \
+    rm -rf /var/lib/apt/lists/
+
+###
+WORKDIR /opt_conda
+
+RUN wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh && \
+    sh Miniconda3-latest-Linux-x86_64.sh -b -p /opt_conda/miniconda3 && \
+    rm -r Miniconda3-latest-Linux-x86_64.sh
+
+ENV PATH=/opt_conda/miniconda3/bin:$PATH
+
+RUN <<EOF
+if [[ -n $PYTHON_VER ]]; then
+    _PYTHON_OPT_=python=${PYTHON_VER}
+fi
+conda tos accept --override-channels --channel https://repo.anaconda.com/pkgs/main
+conda tos accept --override-channels --channel https://repo.anaconda.com/pkgs/r
+conda update -n base -c defaults -y conda
+conda create -n conda_env -y  ${_PYTHON_OPT_}
+conda init
+echo "conda activate conda_env" >> ~/.bashrc
+EOF
+
+ENV CONDA_DEFAULT_ENV=conda_env
+
+### install conda packages
+#>RUN <<EOF
+#>source ~/.bashrc
+#>conda install -c conda-forge -y \
+#>  package-names ...
+#>EOF
