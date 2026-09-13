@@ -13,39 +13,53 @@ exec "$@"\n' >> /irsl_entrypoint.sh
 RUN chmod a+x /irsl_entrypoint.sh
 
 RUN <<EOF
+sed -i -e 's@xterm-color@xterm-color|eterm-color|tmux-256color@g' ~/.bashrc
 cat - << _DOC_ >> /irsl_entryrc
-# setup ros environment
-if [ -e "\${DOCKER_ROS_SETUP}" ]; then
-    source "\${DOCKER_ROS_SETUP}"
-else
-    source "/opt/ros/\$ROS_DISTRO/setup.bash"
+##
+export HOME=/ros_home
+export ROS_HOME=/ros_home
+
+if [[ -n \$IRSL_TERM ]]; then
+    export TERM="\${IRSL_TERM}"
 fi
-MY_IP=\${DOCKER_ROS_IP:-\$(hostname -i)}
-if [ "\$ROS_IP" == "" ]; then
-    export ROS_IP=\${MY_IP}
-fi
-if [ "\$ROS_HOSTNAME" == "" ]; then
-    export ROS_HOSTNAME=\${ROS_IP}
-fi
-if [ "\${DOCKER_ROS_MASTER_URI}" != "" ]; then
-    export ROS_MASTER_URI=\${DOCKER_ROS_MASTER_URI}
-fi
-if [ -n "\${IRSL_EXTRA_PATH}" ]; then
+
+## IRSL extra settings
+if [[ -n \${IRSL_EXTRA_PATH} ]]; then
     export PATH=\$PATH:\${IRSL_EXTRA_PATH}
 fi
-if [ -n "\${IRSL_EXTRA_LIB}" ]; then
+if [[ -n \${IRSL_EXTRA_LIB} ]]; then
     export LD_LIBRARY_PATH=\$LD_LIBRARY_PATH:\${IRSL_EXTRA_LIB}
 fi
-if [ -n "\${IRSL_ADD_SOURCE}" ]; then
+if [[ -n \${IRSL_ADD_SOURCE} ]]; then
     if [ -e "\${IRSL_ADD_SOURCE}" ]; then
         source "\${IRSL_ADD_SOURCE}"
     fi
 fi
-export HOME=/ros_home
-export ROS_HOME=/ros_home
+
+## setup ros environment
+if [[ -n \$IRSL_ACTIVATE_ROS ]]; then
+    if [ -e "\${DOCKER_ROS_SETUP}" ]; then
+        source "\${DOCKER_ROS_SETUP}"
+    else
+        source "/opt/ros/\$ROS_DISTRO/setup.bash"
+    fi
+    MY_IP=\${DOCKER_ROS_IP:-\$(hostname -i)}
+    if [[ -z \$ROS_IP ]]; then
+        export ROS_IP=\${MY_IP}
+    fi
+    if [[ -z \$ROS_HOSTNAME ]]; then
+        export ROS_HOSTNAME=\${ROS_IP}
+    fi
+    if [[ -n \${DOCKER_ROS_MASTER_URI} ]]; then
+        export ROS_MASTER_URI=\${DOCKER_ROS_MASTER_URI}
+    fi
+    if [[ -n \${DOCKER_ROS_DONAMIN_ID} ]]; then
+        export ROS_DOMAIN_ID=\${DOCKER_ROS_DOMAIN_ID}
+    fi
+fi
 
 ## activate virtual env
-if [ -e /irsl_venv/bin/activate ]; then
+if [[ -n \$IRSL_ACTIVATE_ENV && -e /irsl_venv/bin/activate ]]; then
     source /irsl_venv/bin/activate
 fi
 _DOC_
