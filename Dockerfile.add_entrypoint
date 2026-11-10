@@ -5,10 +5,15 @@ LABEL maintainer="IRSL-tut (https://github.com/IRSL-tut) <faculty@irsl.eiiris.tu
 
 RUN mkdir -p /ros_home/log && chmod a+rwx /ros_home && chmod a+rwx /ros_home/log
 
-RUN echo -e '#!/bin/bash\n\
-set -e\n\
-source /irsl_entryrc\n\
-exec "$@"\n' >> /irsl_entrypoint.sh
+RUN <<EOF
+cat - << '_DOC_' >> /irsl_entrypoint.sh
+#!/bin/bash
+
+set -e
+source /irsl_entryrc
+exec "$@"
+_DOC_
+EOF
 
 RUN chmod a+x /irsl_entrypoint.sh
 
